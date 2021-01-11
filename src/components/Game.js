@@ -9,7 +9,8 @@ class Game extends Component {
         this.state = {
             questions: null,
             currentQuestion: null,
-            loading: true
+            loading: true,
+            score: 0
         }
     }
 
@@ -21,20 +22,32 @@ class Game extends Component {
             //choose first question and pass it to Question component
             this.setState(
                 {
-                    questions, currentQuestion: questions[0],
-                    loading: false
-                }
+                    questions
+                }, () => { this.changeQuestion(); }
             )
+
         } catch (err) {
             console.err(err)
         }
     }
 
-    changeQuestion = () => {
+    changeQuestion = (bonus = 0) => {
         // get rnadom question index
+        const randomQuestionIndex = Math.floor(Math.random() * this.state.questions.length)
         // set curretn question to the random index
+        const currentQuestion = this.state.questions[randomQuestionIndex]
         // remove the question from the array
+        const remainingQuestions = [...this.state.questions];
+        remainingQuestions.splice(randomQuestionIndex, 1)
         // update state to reflect changes
+        this.setState((prevState) => ({
+            questions: remainingQuestions,
+            currentQuestion,
+            loading: false,
+            score: prevState.score += bonus
+        }))
+
+        console.log(this.state.score)
     }
 
     render() {
@@ -42,7 +55,7 @@ class Game extends Component {
             <>
                 {this.state.loading && <div id="loader" />}
                 {!this.state.loading && this.state.currentQuestion && (
-                    <Question question={this.state.currentQuestion} />
+                    <Question question={this.state.currentQuestion} changeQuestion={this.changeQuestion} />
                 )}
 
             </>
